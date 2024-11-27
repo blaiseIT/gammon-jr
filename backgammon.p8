@@ -4,20 +4,7 @@ __lua__
 -- backgammon
 
 music(0)
--- 87654321
--- X------- top colour
--- -X------ bottom colour
--- ----XXXX number of cks (0-31)
-
-ctop = 0b10000000
-cbot = 0b01000000
-p1   = 0
-p2   = 0b11000000
-mask = 0b00001111
-board = { 0, 2|p1, 0, 0, 0, 0, 5|p2,   0, 3|p2, 0, 0, 0, 5|p1,
-             5|p2, 0, 0, 0, 3|p1, 0,   5|p1, 0, 0, 0, 0, 2|p2,   0}
--- board = { 0, 2|p1, 0, 0, 0, 0, 5|p2,   0, 3|p2, 0, 0, 0, 5|p1,
--- 			5|p2, 0, 0, 0, 3|p1, 0,   5|p1, 0, 0, 0, 1, 2|p2,   0}
+pips = { }
 width = 8
 
 sel = 2
@@ -27,7 +14,22 @@ red = 1
 blue = 2
 turn = red
 move = 0
+function Pip(num, own)
+	return {num=num, top=own, bot=own}
+end
+
 function _init()
+	for i=1, 26 do
+		add(pips, {top=0, bot = 0, num = 0})
+	end
+	pips[2] = Pip(2,blue)
+	pips[7] = Pip(5,red)
+	pips[9] = Pip(3,red)
+	pips[13] = Pip(5,blue)
+	pips[14] = Pip(5,red)
+	pips[18] = Pip(3,blue)
+	pips[20] = Pip(5,blue)
+	pips[25] = Pip(2,red)
 end
 
 function id_to_x(id)
@@ -38,23 +40,23 @@ function id_to_x(id)
 end
 
 function drawStack(id)
-	count = board[id] & mask
+	count = pips[id].num
 
-	top = (board[id] & ctop == 0) and 2 or 1
-	bot = (board[id] & cbot == 0) and 2 or 1
+	top = pips[id].top
+	bot = pips[id].bot
 
 	if id > 13 then
-		y = -8
+		y = 0
 		pos = 1
 	else
-		y = 128
+		y = 120
 		pos = -1
 	end
 
-	spr(top, id_to_x(id), y + 8*count*pos)
-
+	spr(bot, id_to_x(id), y)
+	
 	for i=1,count-1 do
-		spr(bot, id_to_x(id), y + 8*i*pos)
+		spr(top, id_to_x(id), y + 8*i*pos)
 	end
 end
 
@@ -87,19 +89,19 @@ function _draw()
 	end
 
 	for i=2,26 do
-		if (board[i] != 0) then
+		if (pips[i].num != 0) then
 			drawStack(i)
 		end
 	end
 
-	num = mask&board[sel] > 1 and mask&board[sel] - 1 or 0
+	num = pips[sel].num > 1 and pips[sel].num - 1 or 0
 
 	--draw selector
-	if sel > 13 then y = 0 + num*8
-	else y = 120 - num*8 end
+	if sel > 13 then y = 0 + num*8; offset = 4
+	else y = 120 - num*8; offset = -4 end
 	if selecting then
-		spr(1, id_to_x(sel), y-4)
-	else spr(move+2, id_to_x(sel), y) end
+		spr(move, id_to_x(sel), y+offset)
+	else spr(3, id_to_x(sel), y) end
 	
 	
 	-- print("this is pico-8",
@@ -111,23 +113,26 @@ end
 
 function take(id)
 	--can you take it
-	local size = board[id] & mask
+	local size = pips[id].num
 	if size > 0 then
-		move = board[id] >> 7
+		move = pips[id].top
 		selecting = true
-		board[id] -= 1;
+		pips[id].num -= 1;
 		if size == 1 then
-			--owner = neither
+			pips[id].top = 0
+			pips[id].bot = 0
 		elseif size == 2 then
-			--top = bottom
+			pips[id].top = pips[id].bot
+		end
 	end
 end
 
 function put(id)
 	if true then
 		selecting = false
-		board[id] += 1
-		board[id] |= 0b10000000
+		if pips[id].num == 0 then pips[id].bot = move end
+		pips[id].num += 1
+		pips[id].top = move
 	end
 end
 
