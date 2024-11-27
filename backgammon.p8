@@ -26,6 +26,7 @@ selecting = false
 red = 1
 blue = 2
 turn = red
+move = 0
 function _init()
 end
 
@@ -98,7 +99,7 @@ function _draw()
 	else y = 120 - num*8 end
 	if selecting then
 		spr(1, id_to_x(sel), y-4)
-	else spr(3, id_to_x(sel), y) end
+	else spr(move+2, id_to_x(sel), y) end
 	
 	
 	-- print("this is pico-8",
@@ -110,10 +111,15 @@ end
 
 function take(id)
 	--can you take it
-	if board[id]&mask > 0 and board[id]&ctop == 0b10000000 then
-		pick = id
+	local size = board[id] & mask
+	if size > 0 then
+		move = board[id] >> 7
 		selecting = true
-		board[pick] -= 1;
+		board[id] -= 1;
+		if size == 1 then
+			--owner = neither
+		elseif size == 2 then
+			--top = bottom
 	end
 end
 
