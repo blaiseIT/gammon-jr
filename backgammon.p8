@@ -7,36 +7,37 @@ music(0)
 pips = { }
 width = 8
 
-sel = 2
+sel = 1
 selecting = false
 
 red = 1
 blue = 2
 turn = red
 move = 0
+
 function Pip(num, own)
 	return {num=num, top=own, bot=own}
 end
 
 function _init()
-	for i=1, 26 do
-		add(pips, {top=0, bot = 0, num = 0})
+	for i=0, 25 do
+		pips[i] = Pip(0,0)
 	end
-	pips[2] = Pip(2,blue)
-	pips[7] = Pip(5,red)
-	pips[9] = Pip(3,red)
-	pips[13] = Pip(5,blue)
-	pips[14] = Pip(5,red)
-	pips[18] = Pip(3,blue)
-	pips[20] = Pip(5,blue)
-	pips[25] = Pip(2,red)
+	pips[1] = Pip(2,blue)
+	pips[6] = Pip(5,red)
+	pips[8] = Pip(3,red)
+	pips[12] = Pip(5,blue)
+	pips[13] = Pip(5,red)
+	pips[17] = Pip(3,blue)
+	pips[19] = Pip(5,blue)
+	pips[24] = Pip(2,red)
 end
 
 function id_to_x(id)
-	if id >= 20 then return (id-12) * 8
-	elseif id >= 14 then return (id-13) * 8
-	elseif id >= 8 then return (14-id) * 8
-	else return (15-id) * 8 end
+	if id >= 19 then return (id-11) * 8
+	elseif id >= 13 then return (id-12) * 8
+	elseif id >= 7 then return (13-id) * 8
+	else return (14-id) * 8 end
 end
 
 function drawStack(id)
@@ -45,7 +46,7 @@ function drawStack(id)
 	top = pips[id].top
 	bot = pips[id].bot
 
-	if id > 13 then
+	if id > 12 then
 		y = 0
 		pos = 1
 	else
@@ -67,15 +68,7 @@ function _draw()
 	--background
 	rectfill(120,127,0,0,3)
 
-
-	--draw rectangle board
-	-- for i=2, 13 do
-	-- 	x = id_to_x(i)
-	-- 	rectfill(x,0, x+7, 50, (i % 2) + 4)
-	-- 	rectfill(x,78,x+7, 128, ((1+i) % 2) + 4)
-	-- end
-
-	for i=2,13 do
+	for i=1,12 do
 		x=id_to_x(i)
 		if i % 2 == 0 then pal()
 		else pal (4,5) end
@@ -88,7 +81,7 @@ function _draw()
 		spr(30, x, 72, 1, 3)
 	end
 
-	for i=2,26 do
+	for i=0,#pips do
 		if (pips[i].num != 0) then
 			drawStack(i)
 		end
@@ -97,18 +90,11 @@ function _draw()
 	num = pips[sel].num > 1 and pips[sel].num - 1 or 0
 
 	--draw selector
-	if sel > 13 then y = 0 + num*8; offset = 4
+	if sel > 12 then y = 0 + num*8; offset = 4
 	else y = 120 - num*8; offset = -4 end
 	if selecting then
 		spr(move, id_to_x(sel), y+offset)
 	else spr(3, id_to_x(sel), y) end
-	
-	
-	-- print("this is pico-8",
-	--  37, 70, 14) 
-	-- print("nice to meet you",
-	--  34, 80, 12) 
-	-- spr(1, 64-4, 90) -- ♥
 end
 
 function take(id)
@@ -144,24 +130,18 @@ function _update()
 			take(sel)
 		end
 	end
-	if (sel < 14) then
-		if (btnp(⬅️)) then sel = min(sel+1,26) sfx(0)
-		elseif (btnp(➡️)) then sel = max(sel-1,1) sfx(0)
-		elseif (btnp(⬆️)) then sel = (27-sel) sfx(0)
-		elseif (btnp(⬇️)) then sel = (27-sel) sfx(0) end
+	if (sel < 13) then
+		if (btnp(⬅️)) then sel = min(sel+1,25) sfx(0)
+		elseif (btnp(➡️)) then sel = max(sel-1,0) sfx(0)
+		elseif (btnp(⬆️)) then sel = (25-sel) sfx(0)
+		elseif (btnp(⬇️)) then sel = (25-sel) sfx(0) end
 	else
-		if (btnp(⬅️)) then sel = max(sel-1,1) sfx(0)
-		elseif (btnp(➡️)) then sel = min(sel+1,26) sfx(0)
-		elseif (btnp(⬆️)) then sel = (27-sel) sfx(0)
-		elseif (btnp(⬇️)) then sel = (27-sel) sfx(0) end
+		if (btnp(⬅️)) then sel = max(sel-1,0) sfx(0)
+		elseif (btnp(➡️)) then sel = min(sel+1,25) sfx(0)
+		elseif (btnp(⬆️)) then sel = (25-sel) sfx(0)
+		elseif (btnp(⬇️)) then sel = (25-sel) sfx(0) end
 	end
 end
-
-
-
-
-
-
 
 
 
